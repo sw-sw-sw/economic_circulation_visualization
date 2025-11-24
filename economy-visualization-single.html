@@ -234,31 +234,6 @@
             background: #2ecc71;
         }
 
-        .explanation {
-            background: #ecf0f1;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .explanation h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        .explanation ul {
-            list-style-position: inside;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        .explanation li {
-            margin-bottom: 8px;
-        }
-
-        .explanation strong {
-            color: #2c3e50;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -291,15 +266,6 @@
         </header>
 
         <div class="controls">
-            <div class="control-group">
-                <h3>循環モード</h3>
-                <div class="mode-buttons">
-                    <button id="mode-globalism" class="mode-btn">極端なグローバリズム</button>
-                    <button id="mode-balanced" class="mode-btn active">バランス型（70/30）</button>
-                    <button id="mode-localism" class="mode-btn">極端なローカリズム</button>
-                </div>
-            </div>
-
             <div class="control-group">
                 <h3>カスタム設定</h3>
                 <div class="slider-group">
@@ -350,17 +316,6 @@
                     <span>グローバル経済圏（大）</span>
                 </div>
             </div>
-        </div>
-
-        <div class="explanation">
-            <h3>モデルの説明</h3>
-            <ul>
-                <li><strong>内部循環率70%</strong>: 各経済圏内で資金が循環する割合</li>
-                <li><strong>外部交換率30%</strong>: 他の経済圏と交換される資金の割合</li>
-                <li><strong>バランス型</strong>: 地域の自律性と国際交流の両立</li>
-                <li><strong>極端なグローバリズム</strong>: 大きな渦（グローバル経済）への資金集中</li>
-                <li><strong>極端なローカリズム</strong>: 各地域での完結的循環（江戸時代の藩経済に類似）</li>
-            </ul>
         </div>
     </div>
 
@@ -1092,21 +1047,6 @@
             }
             
             setupUI() {
-                document.getElementById('mode-globalism').addEventListener('click', () => {
-                    this.controller.setExtremeGlobalism();
-                    this.updateActiveButton('mode-globalism');
-                });
-                
-                document.getElementById('mode-balanced').addEventListener('click', () => {
-                    this.controller.setBalanced();
-                    this.updateActiveButton('mode-balanced');
-                });
-                
-                document.getElementById('mode-localism').addEventListener('click', () => {
-                    this.controller.setExtremeLocalism();
-                    this.updateActiveButton('mode-localism');
-                });
-                
                 const internalSlider = document.getElementById('internal-rate');
                 const externalSlider = document.getElementById('external-rate');
                 const internalValue = document.getElementById('internal-value');
@@ -1118,7 +1058,6 @@
                     externalSlider.value = 100 - value;
                     externalValue.textContent = 100 - value;
                     this.controller.setCustomRates(value / 100, (100 - value) / 100);
-                    this.updateActiveButton(null);
                 });
                 
                 externalSlider.addEventListener('input', (e) => {
@@ -1127,7 +1066,6 @@
                     internalSlider.value = 100 - value;
                     internalValue.textContent = 100 - value;
                     this.controller.setCustomRates((100 - value) / 100, value / 100);
-                    this.updateActiveButton(null);
                 });
                 
                 document.getElementById('show-connections').addEventListener('change', (e) => {
@@ -1138,16 +1076,6 @@
                     this.showStats = e.target.checked;
                     document.getElementById('stats').style.display = e.target.checked ? 'block' : 'none';
                 });
-            }
-            
-            updateActiveButton(activeId) {
-                document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                
-                if (activeId) {
-                    document.getElementById(activeId).classList.add('active');
-                }
             }
             
             update() {
@@ -1194,7 +1122,6 @@
                 
                 const statsHTML = `
                     <h4>統計情報</h4>
-                    <div><strong>モード:</strong> ${this.getModeLabel(stats.mode)}</div>
                     <div><strong>総パーティクル数:</strong> ${stats.totalParticles}</div>
                     <div style="margin-top: 10px;"><strong>分布:</strong></div>
                     <div>・ローカル: ${stats.distribution.local}</div>
