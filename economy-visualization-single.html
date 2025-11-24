@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>経済循環の可視化 - グローバリズム・ナショナリズム・ローカリズム v2.0</title>
+    <title>Economic Circulation Visualization - Globalism, Nationalism, Localism v2.0</title>
     <style>
         * {
             margin: 0;
@@ -139,21 +139,6 @@
             border: none;
         }
 
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            cursor: pointer;
-            color: #2c3e50;
-        }
-
-        .checkbox-label input[type="checkbox"] {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
         .canvas-container {
             position: relative;
             margin-bottom: 30px;
@@ -166,72 +151,7 @@
         #economy-canvas {
             display: block;
             width: 100%;
-            height: 600px;
-        }
-
-        .stats-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.9em;
-            min-width: 200px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .stats-panel h4 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-
-        .stats-panel div {
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        .legend {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .legend h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        .legend-items {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .legend-color {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .legend-color.local {
-            background: #e74c3c;
-        }
-
-        .legend-color.national {
-            background: #3498db;
-        }
-
-        .legend-color.global {
-            background: #2ecc71;
+            height: 1200px;
         }
 
         @media (max-width: 768px) {
@@ -248,12 +168,7 @@
             }
 
             #economy-canvas {
-                height: 400px;
-            }
-
-            .legend-items {
-                flex-direction: column;
-                gap: 15px;
+                height: 800px;
             }
         }
     </style>
@@ -261,61 +176,30 @@
 <body>
     <div class="container">
         <header>
-            <h1>経済循環の可視化システム</h1>
-            <p class="subtitle">3層構造の経済圏における資金循環モデル</p>
+            <h1>Economic Circulation System</h1>
+            <p class="subtitle">Three-Layer Economic Zone Circulation Model</p>
         </header>
 
         <div class="controls">
             <div class="control-group">
-                <h3>カスタム設定</h3>
+                <h3>Settings</h3>
                 <div class="slider-group">
                     <label for="internal-rate">
-                        内部循環率: <span id="internal-value">70</span>%
+                        Internal Circulation Rate: <span id="internal-value">70</span>%
                     </label>
                     <input type="range" id="internal-rate" min="10" max="95" value="70" step="5">
                 </div>
                 <div class="slider-group">
                     <label for="external-rate">
-                        外部交換率: <span id="external-value">30</span>%
+                        External Exchange Rate: <span id="external-value">30</span>%
                     </label>
                     <input type="range" id="external-rate" min="5" max="90" value="30" step="5">
                 </div>
-            </div>
-
-            <div class="control-group">
-                <h3>表示設定</h3>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="show-connections" checked>
-                    渦間の接続を表示
-                </label>
-                <label class="checkbox-label">
-                    <input type="checkbox" id="show-stats" checked>
-                    統計情報を表示
-                </label>
             </div>
         </div>
 
         <div class="canvas-container">
             <canvas id="economy-canvas"></canvas>
-            <div id="stats" class="stats-panel"></div>
-        </div>
-
-        <div class="legend">
-            <h3>凡例</h3>
-            <div class="legend-items">
-                <div class="legend-item">
-                    <span class="legend-color local"></span>
-                    <span>ローカル経済圏（小）</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-color national"></span>
-                    <span>ナショナル経済圏（中）</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-color global"></span>
-                    <span>グローバル経済圏（大）</span>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -326,41 +210,42 @@
         // Config クラス
         class Config {
             constructor() {
-                this.localVortexCount = 3;
                 this.nationalVortexCount = 3;
                 this.globalVortexCount = 3;
-                
+
                 this.defaultInternalRate = 0.7;
                 this.defaultExternalRate = 0.3;
-                
+
                 // パーティクル数を渦の種類に応じて調整
+                // national (青・ローカル): 300個
+                // global (緑・ナショナル): 450個
                 this.particlesPerVortex = {
-                    local: 150,      // ローカル：50→150（3倍）
-                    national: 300,   // ナショナル：100→300（3倍）
-                    global: 450      // グローバル：150→450（3倍）
+                    national: 300,
+                    global: 450
                 };
-                
+
+                // 渦のサイズ
+                // national (青・ローカル): 140
+                // global (緑・ナショナル): 320
                 this.vortexSizes = {
-                    local: 30,      // ナショナルの半分以下に
-                    national: 70,   
-                    global: 160     
+                    national: 140,
+                    global: 320
                 };
-                
+
+                // 渦の引力の強さ
                 this.vortexStrength = {
-                    local: 0.7,     // ローカルの引力をさらに弱く
                     national: 1.5,
                     global: 2.8
                 };
-                
+
                 this.colors = {
-                    local: '#e74c3c',
-                    national: '#3498db',
-                    global: '#2ecc71',
+                    national: '#3498db',  // 青（ローカル経済圏）
+                    global: '#2ecc71',    // 緑（ナショナル経済圏）
                     exchange: '#f39c12',
                     connection: 'rgba(255, 255, 255, 0.1)'
                 };
-                
-                this.particleSize = 2;    // パーティクルサイズ
+
+                this.particleSize = 4;    // パーティクルサイズ
                 this.particleAlpha = 0.6; // 透明度
                 
                 this.friction = 0.98;     // 摩擦を減らして移動を促進（0.97→0.98）
@@ -372,77 +257,34 @@
                 switch(mode) {
                     case 'extreme-globalism':
                         return {
-                            internalRate: 0.05,    // 内部循環をほぼゼロに（0.2→0.05）
-                            externalRate: 0.95,    // 外部交換をほぼ100%に（0.8→0.95）
+                            internalRate: 0.05,
+                            externalRate: 0.95,
                             strengthMultiplier: {
-                                local: 0.1,        // ローカルの引力を超極小に（0.3→0.1）
-                                national: 0.4,     // ナショナルも極弱に（0.8→0.4）
-                                global: 15.0       // グローバルの引力を超極大に（8.0→15.0）
+                                national: 0.4,
+                                global: 15.0
                             }
                         };
-                    
+
                     case 'balanced':
                         return {
                             internalRate: 0.7,
                             externalRate: 0.3,
                             strengthMultiplier: {
-                                local: 1.0,
                                 national: 2.0,
                                 global: 3.0
                             }
                         };
-                    
+
                     case 'extreme-localism':
                         return {
-                            internalRate: 0.95,   // 内部循環を極端に強く
-                            externalRate: 0.05,   // 外部交換を極端に弱く
+                            internalRate: 0.95,
+                            externalRate: 0.05,
                             strengthMultiplier: {
-                                local: 4.0,       // ローカルの引力を極大に
-                                national: 1.0,
-                                global: 0.3       // グローバルの引力を極小に
+                                national: 4.0,
+                                global: 0.3
                             }
                         };
-                    
-                    default:
-                        return this.getPresetMode('balanced');
-                }
-            }
-            
-            getPresetMode(mode) {
-                switch(mode) {
-                    case 'extreme-globalism':
-                        return {
-                            internalRate: 0.3,
-                            externalRate: 0.7,
-                            strengthMultiplier: {
-                                local: 0.5,
-                                national: 1.0,
-                                global: 5.0
-                            }
-                        };
-                    
-                    case 'balanced':
-                        return {
-                            internalRate: 0.7,
-                            externalRate: 0.3,
-                            strengthMultiplier: {
-                                local: 1.0,
-                                national: 2.0,
-                                global: 3.0
-                            }
-                        };
-                    
-                    case 'extreme-localism':
-                        return {
-                            internalRate: 0.9,
-                            externalRate: 0.1,
-                            strengthMultiplier: {
-                                local: 3.0,
-                                national: 1.5,
-                                global: 0.5
-                            }
-                        };
-                    
+
                     default:
                         return this.getPresetMode('balanced');
                 }
@@ -619,15 +461,15 @@
                 ctx.fill();
                 
                 ctx.strokeStyle = this.color;
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 4;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius * 0.3, 0, Math.PI * 2);
                 ctx.stroke();
-                
+
                 if (showConnections) {
                     ctx.strokeStyle = this.config.colors.connection;
-                    ctx.lineWidth = 1;
-                    ctx.setLineDash([5, 5]);
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([10, 10]);
                     
                     for (const vortex of this.connectedVortexes) {
                         ctx.beginPath();
@@ -667,9 +509,9 @@
                 
                 this.color = homeVortex.color;
                 this.isTransferring = false;
-                
+
                 this.trail = [];
-                this.maxTrailLength = 10;
+                this.maxTrailLength = 20;
             }
             
             calculateForces() {
@@ -721,7 +563,7 @@
             draw(ctx) {
                 if (this.trail.length > 1) {
                     ctx.strokeStyle = `${this.color}30`;
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2;
                     ctx.beginPath();
                     ctx.moveTo(this.trail[0].x, this.trail[0].y);
                     
@@ -810,7 +652,6 @@
                     vortexStats: {},
                     totalParticles: 0,
                     distribution: {
-                        local: 0,
                         national: 0,
                         global: 0
                     }
@@ -875,10 +716,10 @@
                 this.particles = [];
                 
                 this.controller = null;
-                
+
                 this.showConnections = true;
-                this.showStats = true;
-                
+                this.showStats = false;
+
                 this.animationId = null;
                 this.isPaused = false;
                 
@@ -927,8 +768,7 @@
                 
                 const globalRadius = this.config.vortexSizes.global;
                 const nationalRadius = this.config.vortexSizes.national;
-                const localRadius = this.config.vortexSizes.local;
-                
+
                 globalPositions.forEach((globalPos, gIndex) => {
                     // グローバル渦を作成
                     const globalVortex = new Vortex(globalPos.x, globalPos.y, globalRadius, 'global', this.config);
@@ -946,37 +786,23 @@
                         const nationalVortex = new Vortex(nx, ny, nationalRadius, 'national', this.config);
                         nationalVortex.parentVortex = globalVortex;
                         this.vortexes.push(nationalVortex);
-                        
-                        // ローカル渦をナショナル渦の中心に配置（同じ位置）
-                        const localVortex = new Vortex(nx, ny, localRadius, 'local', this.config);
-                        localVortex.parentVortex = nationalVortex;
-                        this.vortexes.push(localVortex);
                     }
                 });
             }
             
             connectVortexes() {
-                const localVortexes = this.vortexes.filter(v => v.type === 'local');
                 const nationalVortexes = this.vortexes.filter(v => v.type === 'national');
                 const globalVortexes = this.vortexes.filter(v => v.type === 'global');
-                
-                // 1. ローカル ⟷ 親ナショナル（同じ位置にある）
-                localVortexes.forEach(local => {
-                    if (local.parentVortex) {
-                        local.connectTo(local.parentVortex);
-                        local.parentVortex.connectTo(local);
-                    }
-                });
-                
-                // 2. ナショナル ⟷ 親グローバル
+
+                // 1. ナショナル ⟷ 親グローバル
                 nationalVortexes.forEach(national => {
                     if (national.parentVortex) {
                         national.connectTo(national.parentVortex);
                         national.parentVortex.connectTo(national);
                     }
                 });
-                
-                // 3. 同じグローバル内のナショナル同士を接続
+
+                // 2. 同じグローバル内のナショナル同士を接続
                 globalVortexes.forEach(global => {
                     const childNationals = nationalVortexes.filter(n => n.parentVortex === global);
                     for (let i = 0; i < childNationals.length; i++) {
@@ -986,19 +812,16 @@
                         }
                     }
                 });
-                
-                // 4. 同じナショナル内のローカル同士を接続（同位置なので実質的には意味が薄い）
-                // （オプション：省略可能）
-                
-                // 5. グローバル同士を接続
+
+                // 3. グローバル同士を接続
                 for (let i = 0; i < globalVortexes.length; i++) {
                     for (let j = i + 1; j < globalVortexes.length; j++) {
                         globalVortexes[i].connectTo(globalVortexes[j]);
                         globalVortexes[j].connectTo(globalVortexes[i]);
                     }
                 }
-                
-                // 6. 異なるグローバルのナショナル同士も接続（国際的な交流）
+
+                // 4. 異なるグローバルのナショナル同士も接続（国際的な交流）
                 for (let i = 0; i < nationalVortexes.length; i++) {
                     for (let j = i + 1; j < nationalVortexes.length; j++) {
                         // 親が異なる場合のみ接続
@@ -1067,15 +890,6 @@
                     internalValue.textContent = 100 - value;
                     this.controller.setCustomRates((100 - value) / 100, value / 100);
                 });
-                
-                document.getElementById('show-connections').addEventListener('change', (e) => {
-                    this.showConnections = e.target.checked;
-                });
-                
-                document.getElementById('show-stats').addEventListener('change', (e) => {
-                    this.showStats = e.target.checked;
-                    document.getElementById('stats').style.display = e.target.checked ? 'block' : 'none';
-                });
             }
             
             update() {
@@ -1087,32 +901,23 @@
             render() {
                 this.ctx.fillStyle = '#1a1a2e';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                // 渦を大きい順に描画（グローバル→ナショナル→ローカル）
+
+                // 渦を大きい順に描画（グローバル→ナショナル）
                 const globalVortexes = this.vortexes.filter(v => v.type === 'global');
                 const nationalVortexes = this.vortexes.filter(v => v.type === 'national');
-                const localVortexes = this.vortexes.filter(v => v.type === 'local');
-                
+
                 globalVortexes.forEach(vortex => {
                     vortex.draw(this.ctx, this.showConnections);
                 });
-                
+
                 nationalVortexes.forEach(vortex => {
                     vortex.draw(this.ctx, this.showConnections);
                 });
-                
-                localVortexes.forEach(vortex => {
-                    vortex.draw(this.ctx, this.showConnections);
-                });
-                
+
                 // パーティクルを描画
                 this.particles.forEach(particle => {
                     particle.draw(this.ctx);
                 });
-                
-                if (this.showStats) {
-                    this.updateStats();
-                }
             }
             
             updateStats() {
