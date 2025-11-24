@@ -182,7 +182,7 @@
 
         <div class="controls">
             <div class="control-group">
-                <h3>Circulation Settings</h3>
+                <h3>Circulation Rates</h3>
                 <div class="slider-group">
                     <label for="local-national-rate">
                         Local - National Rate: <span id="local-national-value">70</span>%
@@ -194,6 +194,21 @@
                         National - Global Rate: <span id="national-global-value">70</span>%
                     </label>
                     <input type="range" id="national-global-rate" min="0" max="100" value="70" step="5">
+                </div>
+            </div>
+            <div class="control-group">
+                <h3>Attraction Forces</h3>
+                <div class="slider-group">
+                    <label for="local-strength">
+                        Local Force: <span id="local-strength-value">150</span>%
+                    </label>
+                    <input type="range" id="local-strength" min="10" max="300" value="150" step="10">
+                </div>
+                <div class="slider-group">
+                    <label for="national-strength">
+                        National Force: <span id="national-strength-value">280</span>%
+                    </label>
+                    <input type="range" id="national-strength" min="10" max="500" value="280" step="10">
                 </div>
             </div>
         </div>
@@ -367,17 +382,31 @@
                 const dx = this.x - particle.x;
                 const dy = this.y - particle.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 if (distance < 1) return { fx: 0, fy: 0 };
-                
-                // 内部循環率が高い = 自分の渦に強く引き寄せられる
-                // 内部循環率が低い = 自分の渦に弱く引き寄せられる
+
+                // 半径の半分より内側では中心への引力を働かせない
+                const deadZoneRadius = this.radius * 0.5;
+
+                if (distance < deadZoneRadius) {
+                    // 中心部では回転力のみ（引力なし）
+                    const angle = Math.atan2(dy, dx);
+                    const rotationAngle = angle + Math.PI / 2;
+                    const rotationForce = (this.currentStrength * this.internalCirculationRate * 0.5) / (distance * 0.08);
+
+                    return {
+                        fx: Math.cos(rotationAngle) * rotationForce,
+                        fy: Math.sin(rotationAngle) * rotationForce
+                    };
+                }
+
+                // 外側では通常の引力+回転力
                 const force = (this.currentStrength * this.internalCirculationRate * 2.0) / (distance * 0.08);
                 const angle = Math.atan2(dy, dx);
-                
+
                 const rotationAngle = angle + Math.PI / 2;
                 const rotationForce = force * 0.3;
-                
+
                 return {
                     fx: Math.cos(angle) * force + Math.cos(rotationAngle) * rotationForce,
                     fy: Math.sin(angle) * force + Math.sin(rotationAngle) * rotationForce
@@ -531,7 +560,7 @@
                 const external = this.currentVortex.calculateExternalForce(this);
 
                 // 揺らぎ（ランダムな力）を追加
-                const turbulence = 0.3;  // 揺らぎの強さ
+                const turbulence = 0.8;  // 揺らぎの強さを増加（0.3→0.8）
                 const randomFx = (Math.random() - 0.5) * turbulence;
                 const randomFy = (Math.random() - 0.5) * turbulence;
 
@@ -658,6 +687,18 @@
                     } else if (vortex.type === 'global') {
                         // 緑・ナショナル：national-global rateを適用
                         vortex.updateCirculationRates(nationalGlobalRate, 1 - nationalGlobalRate);
+                    }
+                });
+            }
+
+            setAttractionForces(localForce, nationalForce) {
+                this.vortexes.forEach(vortex => {
+                    if (vortex.type === 'national') {
+                        // 青・ローカル：localForceを適用（150% = 1.5）
+                        vortex.currentStrength = localForce / 100;
+                    } else if (vortex.type === 'global') {
+                        // 緑・ナショナル：nationalForceを適用（280% = 2.8）
+                        vortex.currentStrength = nationalForce / 100;
                     }
                 });
             }
@@ -906,6 +947,11 @@
                 const localNationalValue = document.getElementById('local-national-value');
                 const nationalGlobalValue = document.getElementById('national-global-value');
 
+                const localStrengthSlider = document.getElementById('local-strength');
+                const nationalStrengthSlider = document.getElementById('national-strength');
+                const localStrengthValue = document.getElementById('local-strength-value');
+                const nationalStrengthValue = document.getElementById('national-strength-value');
+
                 localNationalSlider.addEventListener('input', (e) => {
                     const value = parseInt(e.target.value);
                     localNationalValue.textContent = value;
@@ -918,6 +964,20 @@
                     nationalGlobalValue.textContent = value;
                     const localNationalRate = parseInt(localNationalSlider.value) / 100;
                     this.controller.setCustomRates(localNationalRate, value / 100);
+                });
+
+                localStrengthSlider.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    localStrengthValue.textContent = value;
+                    const nationalStrength = parseInt(nationalStrengthSlider.value);
+                    this.controller.setAttractionForces(value, nationalStrength);
+                });
+
+                nationalStrengthSlider.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    nationalStrengthValue.textContent = value;
+                    const localStrength = parseInt(localStrengthSlider.value);
+                    this.controller.setAttractionForces(localStrength, value);
                 });
             }
             
