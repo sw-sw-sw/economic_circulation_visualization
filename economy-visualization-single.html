@@ -83,7 +83,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
-            font-weight: 600;
+            font-weight: normal;
             transition: all 0.3s ease;
         }
 
@@ -106,7 +106,7 @@
             display: block;
             margin-bottom: 8px;
             color: #2c3e50;
-            font-weight: 600;
+            font-weight: normal;
         }
 
         input[type="range"] {
@@ -265,13 +265,13 @@
                 };
 
                 this.colors = {
-                    national: '#3498db',  // 青（ローカル経済圏）
-                    global: '#2ecc71',    // 緑（ナショナル経済圏）
-                    exchange: '#f39c12',
+                    national: '#888888',  // グレー（ローカル経済圏）
+                    global: '#cccccc',    // ライトグレー（ナショナル経済圏）
+                    exchange: '#ffffff',  // ホワイト（交換）
                     connection: 'rgba(255, 255, 255, 0.1)'
                 };
 
-                this.particleSize = 4;    // パーティクルサイズ
+                this.particleSize = 2;    // パーティクルサイズ
                 this.particleAlpha = 0.6; // 透明度
                 
                 this.friction = 0.98;     // 摩擦を減らして移動を促進（0.97→0.98）
