@@ -182,6 +182,15 @@
 
         <div class="controls">
             <div class="control-group">
+                <h3>Historical Presets</h3>
+                <div class="mode-buttons">
+                    <button class="mode-btn" id="feudal-btn">Feudal Localism</button>
+                    <button class="mode-btn" id="modern-nationalism-btn">Modern Nationalism</button>
+                    <button class="mode-btn" id="globalism-btn">Contemporary Globalism</button>
+                    <button class="mode-btn" id="glocalism-btn">Post-Modern Glocalism</button>
+                </div>
+            </div>
+            <div class="control-group">
                 <h3>Circulation Rates</h3>
                 <div class="slider-group">
                     <label for="local-national-rate">
@@ -702,6 +711,50 @@
                     }
                 });
             }
+
+            getHistoricalPreset(presetName) {
+                const presets = {
+                    'feudal': {
+                        localNationalRate: 100,
+                        nationalGlobalRate: 0,
+                        localForce: 260,
+                        nationalForce: 10,
+                        description: '封建時代のローカリズム'
+                    },
+                    'modern-nationalism': {
+                        localNationalRate: 0,
+                        nationalGlobalRate: 100,
+                        localForce: 80,
+                        nationalForce: 150,
+                        description: '近代国家主義'
+                    },
+                    'globalism': {
+                        localNationalRate: 65,
+                        nationalGlobalRate: 95,
+                        localForce: 30,
+                        nationalForce: 10,
+                        description: '現代グローバリズム'
+                    },
+                    'glocalism': {
+                        localNationalRate: 25,
+                        nationalGlobalRate: 90,
+                        localForce: 290,
+                        nationalForce: 40,
+                        description: 'ポスト近代のグローカリズム'
+                    }
+                };
+                return presets[presetName];
+            }
+
+            applyHistoricalPreset(presetName) {
+                const preset = this.getHistoricalPreset(presetName);
+                if (preset) {
+                    this.setCustomRates(preset.localNationalRate / 100, preset.nationalGlobalRate / 100);
+                    this.setAttractionForces(preset.localForce, preset.nationalForce);
+                    return preset;
+                }
+                return null;
+            }
             
             setExtremeGlobalism() {
                 this.setMode('extreme-globalism');
@@ -952,11 +1005,45 @@
                 const localStrengthValue = document.getElementById('local-strength-value');
                 const nationalStrengthValue = document.getElementById('national-strength-value');
 
+                // プリセットボタン
+                const presetButtons = {
+                    'feudal-btn': 'feudal',
+                    'modern-nationalism-btn': 'modern-nationalism',
+                    'globalism-btn': 'globalism',
+                    'glocalism-btn': 'glocalism'
+                };
+
+                Object.keys(presetButtons).forEach(btnId => {
+                    const button = document.getElementById(btnId);
+                    button.addEventListener('click', () => {
+                        const preset = this.controller.applyHistoricalPreset(presetButtons[btnId]);
+                        if (preset) {
+                            // スライダーの値を更新
+                            localNationalSlider.value = preset.localNationalRate;
+                            localNationalValue.textContent = preset.localNationalRate;
+                            nationalGlobalSlider.value = preset.nationalGlobalRate;
+                            nationalGlobalValue.textContent = preset.nationalGlobalRate;
+                            localStrengthSlider.value = preset.localForce;
+                            localStrengthValue.textContent = preset.localForce;
+                            nationalStrengthSlider.value = preset.nationalForce;
+                            nationalStrengthValue.textContent = preset.nationalForce;
+
+                            // アクティブ状態の切り替え
+                            document.querySelectorAll('.mode-btn').forEach(btn => {
+                                btn.classList.remove('active');
+                            });
+                            button.classList.add('active');
+                        }
+                    });
+                });
+
                 localNationalSlider.addEventListener('input', (e) => {
                     const value = parseInt(e.target.value);
                     localNationalValue.textContent = value;
                     const nationalGlobalRate = parseInt(nationalGlobalSlider.value) / 100;
                     this.controller.setCustomRates(value / 100, nationalGlobalRate);
+                    // カスタム設定の場合、アクティブ状態を解除
+                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
                 });
 
                 nationalGlobalSlider.addEventListener('input', (e) => {
@@ -964,6 +1051,8 @@
                     nationalGlobalValue.textContent = value;
                     const localNationalRate = parseInt(localNationalSlider.value) / 100;
                     this.controller.setCustomRates(localNationalRate, value / 100);
+                    // カスタム設定の場合、アクティブ状態を解除
+                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
                 });
 
                 localStrengthSlider.addEventListener('input', (e) => {
@@ -971,6 +1060,8 @@
                     localStrengthValue.textContent = value;
                     const nationalStrength = parseInt(nationalStrengthSlider.value);
                     this.controller.setAttractionForces(value, nationalStrength);
+                    // カスタム設定の場合、アクティブ状態を解除
+                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
                 });
 
                 nationalStrengthSlider.addEventListener('input', (e) => {
@@ -978,6 +1069,8 @@
                     nationalStrengthValue.textContent = value;
                     const localStrength = parseInt(localStrengthSlider.value);
                     this.controller.setAttractionForces(localStrength, value);
+                    // カスタム設定の場合、アクティブ状態を解除
+                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
                 });
             }
             
