@@ -182,18 +182,18 @@
 
         <div class="controls">
             <div class="control-group">
-                <h3>Settings</h3>
+                <h3>Circulation Settings</h3>
                 <div class="slider-group">
-                    <label for="internal-rate">
-                        Internal Circulation Rate: <span id="internal-value">70</span>%
+                    <label for="local-national-rate">
+                        Local - National Rate: <span id="local-national-value">70</span>%
                     </label>
-                    <input type="range" id="internal-rate" min="10" max="95" value="70" step="5">
+                    <input type="range" id="local-national-rate" min="0" max="100" value="70" step="5">
                 </div>
                 <div class="slider-group">
-                    <label for="external-rate">
-                        External Exchange Rate: <span id="external-value">30</span>%
+                    <label for="national-global-rate">
+                        National - Global Rate: <span id="national-global-value">70</span>%
                     </label>
-                    <input type="range" id="external-rate" min="5" max="90" value="30" step="5">
+                    <input type="range" id="national-global-rate" min="0" max="100" value="70" step="5">
                 </div>
             </div>
         </div>
@@ -213,8 +213,10 @@
                 this.nationalVortexCount = 3;
                 this.globalVortexCount = 3;
 
-                this.defaultInternalRate = 0.7;
-                this.defaultExternalRate = 0.3;
+                // ローカル-ナショナル比率（青い丸の内部循環 vs 親の緑への移動）
+                this.defaultLocalNationalRate = 0.7;
+                // ナショナル-グローバル比率（緑の丸の内部循環 vs 他の緑への移動）
+                this.defaultNationalGlobalRate = 0.7;
 
                 // パーティクル数を渦の種類に応じて調整
                 // national (青・ローカル): 300個
@@ -256,9 +258,10 @@
             getPresetMode(mode) {
                 switch(mode) {
                     case 'extreme-globalism':
+                        // グローバル最大化：ナショナル間（緑同士）の移動が最大
                         return {
-                            internalRate: 0.05,
-                            externalRate: 0.95,
+                            localNationalRate: 0.3,    // ローカル内循環は弱い
+                            nationalGlobalRate: 0.05,  // ナショナル間移動が最大
                             strengthMultiplier: {
                                 national: 0.4,
                                 global: 15.0
@@ -267,8 +270,8 @@
 
                     case 'balanced':
                         return {
-                            internalRate: 0.7,
-                            externalRate: 0.3,
+                            localNationalRate: 0.7,
+                            nationalGlobalRate: 0.7,
                             strengthMultiplier: {
                                 national: 2.0,
                                 global: 3.0
@@ -276,9 +279,10 @@
                         };
 
                     case 'extreme-localism':
+                        // ローカル最大化：青い丸の中だけで循環
                         return {
-                            internalRate: 0.95,
-                            externalRate: 0.05,
+                            localNationalRate: 0.95,   // ローカル内循環が最大
+                            nationalGlobalRate: 0.95,  // ナショナル内に留まる
                             strengthMultiplier: {
                                 national: 4.0,
                                 global: 0.3
@@ -315,10 +319,18 @@
                 this.radius = radius;
                 this.type = type;
                 this.config = config;
-                
-                this.internalCirculationRate = config.defaultInternalRate;
-                this.externalExchangeRate = config.defaultExternalRate;
-                
+
+                // typeに応じて初期値を設定
+                if (type === 'national') {
+                    // 青・ローカル：local-national rateを使用
+                    this.internalCirculationRate = config.defaultLocalNationalRate;
+                    this.externalExchangeRate = 1 - config.defaultLocalNationalRate;
+                } else if (type === 'global') {
+                    // 緑・ナショナル：national-global rateを使用
+                    this.internalCirculationRate = config.defaultNationalGlobalRate;
+                    this.externalExchangeRate = 1 - config.defaultNationalGlobalRate;
+                }
+
                 this.baseStrength = config.vortexStrength[type];
                 this.currentStrength = this.baseStrength;
                 
@@ -511,22 +523,27 @@
                 this.isTransferring = false;
 
                 this.trail = [];
-                this.maxTrailLength = 20;
+                this.maxTrailLength = 5;  // トレイルを短く（20→5）
             }
             
             calculateForces() {
                 const internal = this.currentVortex.calculateInternalForce(this);
                 const external = this.currentVortex.calculateExternalForce(this);
-                
-                this.vx += internal.fx + external.fx;
-                this.vy += internal.fy + external.fy;
-                
+
+                // 揺らぎ（ランダムな力）を追加
+                const turbulence = 0.3;  // 揺らぎの強さ
+                const randomFx = (Math.random() - 0.5) * turbulence;
+                const randomFy = (Math.random() - 0.5) * turbulence;
+
+                this.vx += internal.fx + external.fx + randomFx;
+                this.vy += internal.fy + external.fy + randomFy;
+
                 const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
                 if (speed > this.config.maxSpeed) {
                     this.vx = (this.vx / speed) * this.config.maxSpeed;
                     this.vy = (this.vy / speed) * this.config.maxSpeed;
                 }
-                
+
                 this.vx *= this.config.friction;
                 this.vy *= this.config.friction;
             }
@@ -612,25 +629,36 @@
             
             applyPreset(preset) {
                 this.vortexes.forEach(vortex => {
-                    vortex.updateCirculationRates(
-                        preset.internalRate,
-                        preset.externalRate
-                    );
-                    
+                    if (vortex.type === 'national') {
+                        // 青・ローカル：local-national rateを適用
+                        vortex.updateCirculationRates(
+                            preset.localNationalRate,
+                            1 - preset.localNationalRate
+                        );
+                    } else if (vortex.type === 'global') {
+                        // 緑・ナショナル：national-global rateを適用
+                        vortex.updateCirculationRates(
+                            preset.nationalGlobalRate,
+                            1 - preset.nationalGlobalRate
+                        );
+                    }
+
                     const multiplier = preset.strengthMultiplier[vortex.type];
                     vortex.updateStrength(multiplier);
                 });
             }
             
-            setCustomRates(internalRate, externalRate) {
+            setCustomRates(localNationalRate, nationalGlobalRate) {
                 this.currentMode = 'custom';
-                
-                const total = internalRate + externalRate;
-                const adjustedInternal = internalRate / total;
-                const adjustedExternal = externalRate / total;
-                
+
                 this.vortexes.forEach(vortex => {
-                    vortex.updateCirculationRates(adjustedInternal, adjustedExternal);
+                    if (vortex.type === 'national') {
+                        // 青・ローカル：local-national rateを適用
+                        vortex.updateCirculationRates(localNationalRate, 1 - localNationalRate);
+                    } else if (vortex.type === 'global') {
+                        // 緑・ナショナル：national-global rateを適用
+                        vortex.updateCirculationRates(nationalGlobalRate, 1 - nationalGlobalRate);
+                    }
                 });
             }
             
@@ -773,16 +801,19 @@
                     // グローバル渦を作成
                     const globalVortex = new Vortex(globalPos.x, globalPos.y, globalRadius, 'global', this.config);
                     this.vortexes.push(globalVortex);
-                    
+
                     // 各グローバル渦の中に3つのナショナル渦を配置
                     const nationalCount = 3;
                     const nationalDistance = globalRadius * 0.45; // グローバル渦の半径の45%の位置
-                    
+
+                    // グローバルごとに30度（π/6）ずつ回転させる
+                    const rotationOffset = (gIndex * Math.PI / 6);
+
                     for (let nIndex = 0; nIndex < nationalCount; nIndex++) {
-                        const angle = (nIndex / nationalCount) * Math.PI * 2 + Math.PI / 6;
+                        const angle = (nIndex / nationalCount) * Math.PI * 2 + Math.PI / 6 + rotationOffset;
                         const nx = globalPos.x + Math.cos(angle) * nationalDistance;
                         const ny = globalPos.y + Math.sin(angle) * nationalDistance;
-                        
+
                         const nationalVortex = new Vortex(nx, ny, nationalRadius, 'national', this.config);
                         nationalVortex.parentVortex = globalVortex;
                         this.vortexes.push(nationalVortex);
@@ -870,25 +901,23 @@
             }
             
             setupUI() {
-                const internalSlider = document.getElementById('internal-rate');
-                const externalSlider = document.getElementById('external-rate');
-                const internalValue = document.getElementById('internal-value');
-                const externalValue = document.getElementById('external-value');
-                
-                internalSlider.addEventListener('input', (e) => {
+                const localNationalSlider = document.getElementById('local-national-rate');
+                const nationalGlobalSlider = document.getElementById('national-global-rate');
+                const localNationalValue = document.getElementById('local-national-value');
+                const nationalGlobalValue = document.getElementById('national-global-value');
+
+                localNationalSlider.addEventListener('input', (e) => {
                     const value = parseInt(e.target.value);
-                    internalValue.textContent = value;
-                    externalSlider.value = 100 - value;
-                    externalValue.textContent = 100 - value;
-                    this.controller.setCustomRates(value / 100, (100 - value) / 100);
+                    localNationalValue.textContent = value;
+                    const nationalGlobalRate = parseInt(nationalGlobalSlider.value) / 100;
+                    this.controller.setCustomRates(value / 100, nationalGlobalRate);
                 });
-                
-                externalSlider.addEventListener('input', (e) => {
+
+                nationalGlobalSlider.addEventListener('input', (e) => {
                     const value = parseInt(e.target.value);
-                    externalValue.textContent = value;
-                    internalSlider.value = 100 - value;
-                    internalValue.textContent = 100 - value;
-                    this.controller.setCustomRates((100 - value) / 100, value / 100);
+                    nationalGlobalValue.textContent = value;
+                    const localNationalRate = parseInt(localNationalSlider.value) / 100;
+                    this.controller.setCustomRates(localNationalRate, value / 100);
                 });
             }
             
