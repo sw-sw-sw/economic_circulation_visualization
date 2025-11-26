@@ -529,7 +529,7 @@
 
                 if (distance < 1) return { fx: 0, fy: 0 };
 
-                const deadZoneRadius = this.radius * 0.5;
+                const deadZoneRadius = this.radius * 0.2;
 
                 if (distance < deadZoneRadius) {
                     const angle = Math.atan2(dy, dx);
