@@ -358,7 +358,7 @@
             'modern-nationalism': {
                 title: "2. 近代ナショナリズム (Modern Nationalism)",
                 subtitle: "「中央集権による富の増幅と均質化」",
-                features: "ローカルからナショナルへ100%吸い上げられ、ナショナル内で100%循環します。青い渦（地方）からパーティクルが勢いよく緑の渦（国家）へ移動しますが、国家間（緑の渦同士）の交換は行われません。",
+                features: "ローカルのリソースはナショナルへほとんど吸い上げられ、ナショナル内で100%循環。国家間（緑の渦同士）の交換は行われません。鎖国的状態",
                 merits: [
                     "<strong>効率的なインフラ整備:</strong> 富が中央に集まることで、鉄道やダム、軍事力などの大規模投資が可能になります。",
                     "<strong>ナショナルミニマムの保証:</strong> 国家単位での社会保障や教育制度が整備され、国民全体の生活水準が底上げされます。"
@@ -371,7 +371,7 @@
             'globalism': {
                 title: "3. 現代グローバリズム (Contemporary Globalism)",
                 subtitle: "「国境なき競争と格差の拡大」",
-                features: "ナショナルな引力が非常に強く、かつ交換レートも高い状態です。パーティクルは猛烈な速度で移動し、ローカル・ナショナル・グローバルの境界を軽々と飛び越え、撹拌されます。",
+                features: "グローバルな引力が非常に強い状態。資源やマネーの循環効率は非常に良いものの。ローカルはリソースを奪われ脆弱。ナショナル間の相互依存度が高く脆弱。",
                 merits: [
                     "<strong>最大効率と富の最大化:</strong> 世界中のどこからでも最も安いコストで調達し、最も高く売れる場所で売るため、世界全体のマクロな富は最大化します。",
                     "<strong>イノベーションの加速:</strong> 知恵や技術が瞬時に共有され、新しいサービスが次々と生まれます。"
@@ -384,7 +384,7 @@
             'glocalism': {
                 title: "4. ポストモダン・グローカリズム (Post-Modern Glocalism)",
                 subtitle: "「地球規模で考え、足元で行動する調和」",
-                features: "ローカルからナショナルへの適度な流出（25%）はあるものの、ナショナルでの滞留率が高い（90%）状態。それぞれの層で適度な循環を保ちながら連携しています。",
+                features: "ローカルからナショナルへの適度な流出（25%）はあるものの、グローバルより、ナショナルでの滞留率が高い（90%）。それぞれの層で適度な循環を保ち連携。",
                 merits: [
                     "<strong>多様性の保持:</strong> 各ローカルが独自の文化や経済圏を維持しつつ、必要な部分は外部と連携します。「ここだけの価値」が重視されます。",
                     "<strong>持続可能性:</strong> 地産地消をベースにしつつ、グローバルな知見を取り入れることで、環境負荷を下げながら経済活動を維持できます。"
@@ -545,7 +545,7 @@
                 const force = (this.currentStrength * this.internalCirculationRate * 2.0) / (distance * 0.08);
                 const angle = Math.atan2(dy, dx);
                 const rotationAngle = angle + Math.PI / 2;
-                const rotationForce = force * 0.3;
+                const rotationForce = force * 0.15;
 
                 return {
                     fx: Math.cos(angle) * force + Math.cos(rotationAngle) * rotationForce,
@@ -852,8 +852,8 @@
                     'glocalism': {
                         localNationalRate: 25,
                         nationalGlobalRate: 90,
-                        localForce: 100,
-                        nationalForce: 110,
+                        localForce: 300,
+                        nationalForce: 100,
                     }
                 };
                 return presets[presetName];
