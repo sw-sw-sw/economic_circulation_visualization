@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Economic Circulation Visualization - Globalism, Nationalism, Localism v2.0</title>
+    <title>Economic Circulation Visualization - Globalism, Nationalism, Localism v2.1</title>
     <style>
         * {
             margin: 0;
@@ -151,7 +151,87 @@
         #economy-canvas {
             display: block;
             width: 100%;
-            height: 1200px;
+            height: 800px; /* 縦幅を少し調整 */
+        }
+
+        /* 解説エリアのスタイル */
+        .explanation-card {
+            background: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #666666;
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .explanation-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .explanation-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .explanation-subtitle {
+            font-size: 1.1em;
+            color: #7f8c8d;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .explanation-section h4 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .explanation-section ul {
+            list-style-type: none;
+            padding-left: 5px;
+        }
+
+        .explanation-section li {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .explanation-section li::before {
+            content: "•";
+            color: #666666;
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .feature-box {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            grid-column: 1 / -1;
+        }
+
+        .feature-title {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 5px;
+            display: block;
         }
 
         @media (max-width: 768px) {
@@ -168,7 +248,11 @@
             }
 
             #economy-canvas {
-                height: 800px;
+                height: 600px;
+            }
+
+            .explanation-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -225,11 +309,92 @@
         <div class="canvas-container">
             <canvas id="economy-canvas"></canvas>
         </div>
+
+        <div id="explanation-card" class="explanation-card" style="display: none;">
+            <div class="explanation-header">
+                <h2 id="exp-title" class="explanation-title">タイトル</h2>
+                <p id="exp-subtitle" class="explanation-subtitle">サブタイトル</p>
+            </div>
+            
+            <div class="feature-box">
+                <span class="feature-title">シミュレーション上の特徴</span>
+                <p id="exp-features">特徴の説明...</p>
+            </div>
+
+            <div class="explanation-grid">
+                <div class="explanation-section">
+                    <h4>メリット</h4>
+                    <ul id="exp-merits">
+                        </ul>
+                </div>
+                <div class="explanation-section">
+                    <h4>デメリット / 課題</h4>
+                    <ul id="exp-demerits">
+                        </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // 全てのJavaScriptコードをここに統合
         console.log('スクリプト読み込み開始');
+
+        // 解説データ
+        const EXPLANATIONS = {
+            'feudal': {
+                title: "1. 封建的ローカリズム (Feudal Localism)",
+                subtitle: "「閉じた共同体の平穏と停滞」",
+                features: "ローカル内循環率100%、ナショナル間移動0%。パーティクルは青い「ローカル渦」の中に完全に閉じ込められ、外へ出ていきません。それぞれの地域が孤立しています。",
+                merits: [
+                    "<strong>高い安定性:</strong> 外部の経済ショック（恐慌やパンデミックなど）の影響をほぼ受けません。",
+                    "<strong>共同体の結束:</strong> 顔の見える範囲での経済活動であるため、信頼関係（ソーシャルキャピタル）が醸成されやすく、格差が視覚化されにくいです。"
+                ],
+                demerits: [
+                    "<strong>経済の停滞:</strong> 外部との交換がないため、技術革新や富の増幅が起きにくく、「ゼロサムゲーム」になりがちです。",
+                    "<strong>個人の自由の制限:</strong> 共同体の掟が全てであり、個人の移動や職業選択の自由が著しく制限されます。"
+                ]
+            },
+            'modern-nationalism': {
+                title: "2. 近代ナショナリズム (Modern Nationalism)",
+                subtitle: "「中央集権による富の増幅と均質化」",
+                features: "ローカルからナショナルへ100%吸い上げられ、ナショナル内で100%循環します。青い渦（地方）からパーティクルが勢いよく緑の渦（国家）へ移動しますが、国家間（緑の渦同士）の交換は行われません。",
+                merits: [
+                    "<strong>効率的なインフラ整備:</strong> 富が中央に集まることで、鉄道やダム、軍事力などの大規模投資が可能になります。",
+                    "<strong>ナショナルミニマムの保証:</strong> 国家単位での社会保障や教育制度が整備され、国民全体の生活水準が底上げされます。"
+                ],
+                demerits: [
+                    "<strong>地方の疲弊（過疎化）:</strong> 地方（ローカル）から富と人が流出し、地方独自の文化や経済が空洞化します（ストロー効果）。",
+                    "<strong>排他性:</strong> 国家という枠組みが強固になるあまり、他国との対立や貿易摩擦が生じやすくなります。"
+                ]
+            },
+            'globalism': {
+                title: "3. 現代グローバリズム (Contemporary Globalism)",
+                subtitle: "「国境なき競争と格差の拡大」",
+                features: "ナショナルな引力が非常に強く、かつ交換レートも高い状態です。パーティクルは猛烈な速度で移動し、ローカル・ナショナル・グローバルの境界を軽々と飛び越え、撹拌されます。",
+                merits: [
+                    "<strong>最大効率と富の最大化:</strong> 世界中のどこからでも最も安いコストで調達し、最も高く売れる場所で売るため、世界全体のマクロな富は最大化します。",
+                    "<strong>イノベーションの加速:</strong> 知恵や技術が瞬時に共有され、新しいサービスが次々と生まれます。"
+                ],
+                demerits: [
+                    "<strong>文化の喪失:</strong> どの国、どの街に行っても同じチェーン店、同じ風景という「場所性の喪失」が起きます。",
+                    "<strong>システミック・リスク:</strong> 一箇所での破綻が瞬時に全世界へ波及します。また、「持てる者」と「持たざる者」の格差が極限まで拡大します。"
+                ]
+            },
+            'glocalism': {
+                title: "4. ポストモダン・グローカリズム (Post-Modern Glocalism)",
+                subtitle: "「地球規模で考え、足元で行動する調和」",
+                features: "ローカルからナショナルへの適度な流出（25%）はあるものの、ナショナルでの滞留率が高い（90%）状態。それぞれの層で適度な循環を保ちながら連携しています。",
+                merits: [
+                    "<strong>多様性の保持:</strong> 各ローカルが独自の文化や経済圏を維持しつつ、必要な部分は外部と連携します。「ここだけの価値」が重視されます。",
+                    "<strong>持続可能性:</strong> 地産地消をベースにしつつ、グローバルな知見を取り入れることで、環境負荷を下げながら経済活動を維持できます。"
+                ],
+                demerits: [
+                    "<strong>調整コストの増大:</strong> バランスを取るための高度な政治判断や、個人のリテラシーが要求されます。",
+                    "<strong>実現の難易度:</strong> 理想的な状態ですが、バランスが崩れると中途半端な停滞や、既得権益の温床になるリスクも孕んでいます。"
+                ]
+            }
+        };
 
         // Config クラス
         class Config {
@@ -237,91 +402,66 @@
                 this.nationalVortexCount = 3;
                 this.globalVortexCount = 3;
 
-                // ローカル-ナショナル比率（青い丸の内部循環 vs 親の緑への移動）
                 this.defaultLocalNationalRate = 0.7;
-                // ナショナル-グローバル比率（緑の丸の内部循環 vs 他の緑への移動）
                 this.defaultNationalGlobalRate = 0.7;
 
-                // パーティクル数を渦の種類に応じて調整
-                // national (青・ローカル): 300個
-                // global (緑・ナショナル): 450個
                 this.particlesPerVortex = {
                     national: 300,
                     global: 450
                 };
 
-                // 渦のサイズ
-                // national (青・ローカル): 140
-                // global (緑・ナショナル): 320
                 this.vortexSizes = {
                     national: 140,
                     global: 320
                 };
 
-                // 渦の引力の強さ
                 this.vortexStrength = {
                     national: 1.5,
                     global: 2.8
                 };
 
                 this.colors = {
-                    national: '#888888',  // グレー（ローカル経済圏）
-                    global: '#cccccc',    // ライトグレー（ナショナル経済圏）
-                    exchange: '#ffffff',  // ホワイト（交換）
+                    national: '#888888',
+                    global: '#cccccc',
+                    exchange: '#ffffff',
                     connection: 'rgba(255, 255, 255, 0.1)'
                 };
 
-                this.particleSize = 2;    // パーティクルサイズ
-                this.particleAlpha = 0.6; // 透明度
+                this.particleSize = 2;
+                this.particleAlpha = 0.6;
                 
-                this.friction = 0.98;     // 摩擦を減らして移動を促進（0.97→0.98）
-                this.maxSpeed = 9;        // 最大速度を上げる（7→9）
+                this.friction = 0.98;
+                this.maxSpeed = 9;
                 this.transferThreshold = 0.5;
             }
             
             getPresetMode(mode) {
+                // シンプル化のため、ヒストリカルプリセット以外はbalancedを返す
                 switch(mode) {
                     case 'extreme-globalism':
-                        // グローバル最大化：ナショナル間（緑同士）の移動が最大
                         return {
-                            localNationalRate: 0.3,    // ローカル内循環は弱い
-                            nationalGlobalRate: 0.05,  // ナショナル間移動が最大
-                            strengthMultiplier: {
-                                national: 0.4,
-                                global: 15.0
-                            }
+                            localNationalRate: 0.3,
+                            nationalGlobalRate: 0.05,
+                            strengthMultiplier: { national: 0.4, global: 15.0 }
                         };
-
-                    case 'balanced':
+                    case 'extreme-localism':
+                        return {
+                            localNationalRate: 0.95,
+                            nationalGlobalRate: 0.95,
+                            strengthMultiplier: { national: 4.0, global: 0.3 }
+                        };
+                    default: // balanced
                         return {
                             localNationalRate: 0.7,
                             nationalGlobalRate: 0.7,
-                            strengthMultiplier: {
-                                national: 2.0,
-                                global: 3.0
-                            }
+                            strengthMultiplier: { national: 2.0, global: 3.0 }
                         };
-
-                    case 'extreme-localism':
-                        // ローカル最大化：青い丸の中だけで循環
-                        return {
-                            localNationalRate: 0.95,   // ローカル内循環が最大
-                            nationalGlobalRate: 0.95,  // ナショナル内に留まる
-                            strengthMultiplier: {
-                                national: 4.0,
-                                global: 0.3
-                            }
-                        };
-
-                    default:
-                        return this.getPresetMode('balanced');
                 }
             }
             
             getVortexPositions(canvasWidth, canvasHeight, type) {
                 const positions = [];
                 const count = this[`${type}VortexCount`];
-                // 渦間の距離をさらに縮小（0.25 → 0.22）
                 const radius = Math.min(canvasWidth, canvasHeight) * 0.22;
                 
                 for (let i = 0; i < count; i++) {
@@ -344,13 +484,10 @@
                 this.type = type;
                 this.config = config;
 
-                // typeに応じて初期値を設定
                 if (type === 'national') {
-                    // 青・ローカル：local-national rateを使用
                     this.internalCirculationRate = config.defaultLocalNationalRate;
                     this.externalExchangeRate = 1 - config.defaultLocalNationalRate;
                 } else if (type === 'global') {
-                    // 緑・ナショナル：national-global rateを使用
                     this.internalCirculationRate = config.defaultNationalGlobalRate;
                     this.externalExchangeRate = 1 - config.defaultNationalGlobalRate;
                 }
@@ -363,8 +500,6 @@
                 
                 this.color = config.colors[type];
                 this.pulsePhase = Math.random() * Math.PI * 2;
-                
-                // 親渦（入れ子構造用）
                 this.parentVortex = null;
             }
             
@@ -394,11 +529,9 @@
 
                 if (distance < 1) return { fx: 0, fy: 0 };
 
-                // 半径の半分より内側では中心への引力を働かせない
                 const deadZoneRadius = this.radius * 0.5;
 
                 if (distance < deadZoneRadius) {
-                    // 中心部では回転力のみ（引力なし）
                     const angle = Math.atan2(dy, dx);
                     const rotationAngle = angle + Math.PI / 2;
                     const rotationForce = (this.currentStrength * this.internalCirculationRate * 0.5) / (distance * 0.08);
@@ -409,10 +542,8 @@
                     };
                 }
 
-                // 外側では通常の引力+回転力
                 const force = (this.currentStrength * this.internalCirculationRate * 2.0) / (distance * 0.08);
                 const angle = Math.atan2(dy, dx);
-
                 const rotationAngle = angle + Math.PI / 2;
                 const rotationForce = force * 0.3;
 
@@ -433,8 +564,6 @@
                     
                     if (distance < 1) continue;
                     
-                    // 外部交換率が高い = 他の渦に強く引き寄せられる
-                    // 外部交換率が低い = 他の渦に弱く引き寄せられる
                     const force = (otherVortex.currentStrength * this.externalExchangeRate * 6.0) / (distance * 0.08);
                     const angle = Math.atan2(dy, dx);
                     
@@ -450,8 +579,6 @@
                 const dy = particle.y - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // 外部交換率に応じて移動判定の閾値を動的に調整
-                // 外部交換率が高い = より内側でも移動を開始
                 const threshold = this.radius * (1.0 - this.externalExchangeRate * 0.5);
                 
                 if (distance > threshold) {
@@ -469,13 +596,11 @@
                         }
                     }
                     
-                    // 外部交換率が高いほど移動確率が上がる
                     if (closestVortex && Math.random() < this.externalExchangeRate * 6) {
                         return closestVortex;
                     }
                 }
                 
-                // ランダム移動も外部交換率に比例
                 if (Math.random() < this.externalExchangeRate * 0.05) {
                     const randomIndex = Math.floor(Math.random() * this.connectedVortexes.length);
                     return this.connectedVortexes[randomIndex];
@@ -561,15 +686,14 @@
                 this.isTransferring = false;
 
                 this.trail = [];
-                this.maxTrailLength = 5;  // トレイルを短く（20→5）
+                this.maxTrailLength = 5;
             }
             
             calculateForces() {
                 const internal = this.currentVortex.calculateInternalForce(this);
                 const external = this.currentVortex.calculateExternalForce(this);
 
-                // 揺らぎ（ランダムな力）を追加
-                const turbulence = 0.8;  // 揺らぎの強さを増加（0.3→0.8）
+                const turbulence = 0.8;
                 const randomFx = (Math.random() - 0.5) * turbulence;
                 const randomFy = (Math.random() - 0.5) * turbulence;
 
@@ -668,13 +792,11 @@
             applyPreset(preset) {
                 this.vortexes.forEach(vortex => {
                     if (vortex.type === 'national') {
-                        // 青・ローカル：local-national rateを適用
                         vortex.updateCirculationRates(
                             preset.localNationalRate,
                             1 - preset.localNationalRate
                         );
                     } else if (vortex.type === 'global') {
-                        // 緑・ナショナル：national-global rateを適用
                         vortex.updateCirculationRates(
                             preset.nationalGlobalRate,
                             1 - preset.nationalGlobalRate
@@ -688,13 +810,10 @@
             
             setCustomRates(localNationalRate, nationalGlobalRate) {
                 this.currentMode = 'custom';
-
                 this.vortexes.forEach(vortex => {
                     if (vortex.type === 'national') {
-                        // 青・ローカル：local-national rateを適用
                         vortex.updateCirculationRates(localNationalRate, 1 - localNationalRate);
                     } else if (vortex.type === 'global') {
-                        // 緑・ナショナル：national-global rateを適用
                         vortex.updateCirculationRates(nationalGlobalRate, 1 - nationalGlobalRate);
                     }
                 });
@@ -703,10 +822,8 @@
             setAttractionForces(localForce, nationalForce) {
                 this.vortexes.forEach(vortex => {
                     if (vortex.type === 'national') {
-                        // 青・ローカル：localForceを適用（150% = 1.5）
                         vortex.currentStrength = localForce / 100;
                     } else if (vortex.type === 'global') {
-                        // 緑・ナショナル：nationalForceを適用（280% = 2.8）
                         vortex.currentStrength = nationalForce / 100;
                     }
                 });
@@ -719,34 +836,29 @@
                         nationalGlobalRate: 0,
                         localForce: 260,
                         nationalForce: 10,
-                        description: '封建時代のローカリズム'
                     },
                     'modern-nationalism': {
                         localNationalRate: 0,
                         nationalGlobalRate: 100,
                         localForce: 80,
                         nationalForce: 150,
-                        description: '近代国家主義'
                     },
                     'globalism': {
                         localNationalRate: 65,
                         nationalGlobalRate: 60,
                         localForce: 60,
                         nationalForce: 480,
-                        description: '現代グローバリズム'
                     },
                     'glocalism': {
                         localNationalRate: 25,
                         nationalGlobalRate: 90,
                         localForce: 100,
                         nationalForce: 110,
-                        description: 'ポスト近代のグローカリズム'
                     }
                 };
                 return presets[presetName];
             }
             
-
             applyHistoricalPreset(presetName) {
                 const preset = this.getHistoricalPreset(presetName);
                 if (preset) {
@@ -755,18 +867,6 @@
                     return preset;
                 }
                 return null;
-            }
-            
-            setExtremeGlobalism() {
-                this.setMode('extreme-globalism');
-            }
-            
-            setBalanced() {
-                this.setMode('balanced');
-            }
-            
-            setExtremeLocalism() {
-                this.setMode('extreme-localism');
             }
             
             getStats() {
@@ -850,39 +950,26 @@
             }
             
             init() {
-                console.log('init() 開始');
-                
                 this.resizeCanvas();
                 window.addEventListener('resize', () => this.resizeCanvas());
                 
                 this.createVortexes();
-                console.log(`渦を作成: ${this.vortexes.length}個`);
-                
                 this.connectVortexes();
-                console.log('渦を接続しました');
-                
                 this.createParticles();
-                console.log(`パーティクルを作成: ${this.particles.length}個`);
                 
                 this.controller = new CirculationController(this.vortexes, this.config);
-                console.log('コントローラー初期化完了');
                 
                 this.setupUI();
-                console.log('UI設定完了');
-                
                 this.animate();
-                console.log('アニメーション開始');
             }
             
             resizeCanvas() {
                 const container = this.canvas.parentElement;
                 this.canvas.width = container.clientWidth;
                 this.canvas.height = container.clientHeight;
-                console.log(`キャンバスサイズ: ${this.canvas.width}x${this.canvas.height}`);
             }
             
             createVortexes() {
-                // グローバル渦を3つ作成（大円配置）
                 const globalPositions = this.config.getVortexPositions(
                     this.canvas.width,
                     this.canvas.height,
@@ -893,15 +980,11 @@
                 const nationalRadius = this.config.vortexSizes.national;
 
                 globalPositions.forEach((globalPos, gIndex) => {
-                    // グローバル渦を作成
                     const globalVortex = new Vortex(globalPos.x, globalPos.y, globalRadius, 'global', this.config);
                     this.vortexes.push(globalVortex);
 
-                    // 各グローバル渦の中に3つのナショナル渦を配置
                     const nationalCount = 3;
-                    const nationalDistance = globalRadius * 0.45; // グローバル渦の半径の45%の位置
-
-                    // グローバルごとに30度（π/6）ずつ回転させる
+                    const nationalDistance = globalRadius * 0.45;
                     const rotationOffset = (gIndex * Math.PI / 6);
 
                     for (let nIndex = 0; nIndex < nationalCount; nIndex++) {
@@ -920,7 +1003,6 @@
                 const nationalVortexes = this.vortexes.filter(v => v.type === 'national');
                 const globalVortexes = this.vortexes.filter(v => v.type === 'global');
 
-                // 1. ナショナル ⟷ 親グローバル
                 nationalVortexes.forEach(national => {
                     if (national.parentVortex) {
                         national.connectTo(national.parentVortex);
@@ -928,7 +1010,6 @@
                     }
                 });
 
-                // 2. 同じグローバル内のナショナル同士を接続
                 globalVortexes.forEach(global => {
                     const childNationals = nationalVortexes.filter(n => n.parentVortex === global);
                     for (let i = 0; i < childNationals.length; i++) {
@@ -939,7 +1020,6 @@
                     }
                 });
 
-                // 3. グローバル同士を接続
                 for (let i = 0; i < globalVortexes.length; i++) {
                     for (let j = i + 1; j < globalVortexes.length; j++) {
                         globalVortexes[i].connectTo(globalVortexes[j]);
@@ -947,10 +1027,8 @@
                     }
                 }
 
-                // 4. 異なるグローバルのナショナル同士も接続（国際的な交流）
                 for (let i = 0; i < nationalVortexes.length; i++) {
                     for (let j = i + 1; j < nationalVortexes.length; j++) {
-                        // 親が異なる場合のみ接続
                         if (nationalVortexes[i].parentVortex !== nationalVortexes[j].parentVortex) {
                             nationalVortexes[i].connectTo(nationalVortexes[j]);
                             nationalVortexes[j].connectTo(nationalVortexes[i]);
@@ -959,27 +1037,8 @@
                 }
             }
             
-            findClosestVortex(targetVortex, candidateVortexes) {
-                let closest = null;
-                let minDistance = Infinity;
-                
-                candidateVortexes.forEach(vortex => {
-                    const dx = vortex.x - targetVortex.x;
-                    const dy = vortex.y - targetVortex.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closest = vortex;
-                    }
-                });
-                
-                return closest;
-            }
-            
             createParticles() {
                 this.vortexes.forEach(vortex => {
-                    // 渦の種類に応じたパーティクル数を取得
                     const particleCount = this.config.particlesPerVortex[vortex.type] || 100;
                     
                     for (let i = 0; i < particleCount; i++) {
@@ -994,6 +1053,28 @@
                     }
                 });
             }
+
+            // 解説を表示するヘルパーメソッド
+            updateExplanation(modeKey) {
+                const data = EXPLANATIONS[modeKey];
+                if (!data) return;
+
+                const card = document.getElementById('explanation-card');
+                const title = document.getElementById('exp-title');
+                const subtitle = document.getElementById('exp-subtitle');
+                const features = document.getElementById('exp-features');
+                const merits = document.getElementById('exp-merits');
+                const demerits = document.getElementById('exp-demerits');
+
+                card.style.display = 'block';
+                title.textContent = data.title;
+                subtitle.textContent = data.subtitle;
+                features.innerHTML = data.features;
+                
+                // リストを生成
+                merits.innerHTML = data.merits.map(m => `<li>${m}</li>`).join('');
+                demerits.innerHTML = data.demerits.map(d => `<li>${d}</li>`).join('');
+            }
             
             setupUI() {
                 const localNationalSlider = document.getElementById('local-national-rate');
@@ -1006,7 +1087,6 @@
                 const localStrengthValue = document.getElementById('local-strength-value');
                 const nationalStrengthValue = document.getElementById('national-strength-value');
 
-                // プリセットボタン
                 const presetButtons = {
                     'feudal-btn': 'feudal',
                     'modern-nationalism-btn': 'modern-nationalism',
@@ -1014,12 +1094,16 @@
                     'glocalism-btn': 'glocalism'
                 };
 
+                // 初期状態として解説を非表示にするか、デフォルトを表示するか
+                // ここでは何も選択されていない状態からスタート
+
                 Object.keys(presetButtons).forEach(btnId => {
                     const button = document.getElementById(btnId);
                     button.addEventListener('click', () => {
-                        const preset = this.controller.applyHistoricalPreset(presetButtons[btnId]);
+                        const modeKey = presetButtons[btnId];
+                        const preset = this.controller.applyHistoricalPreset(modeKey);
                         if (preset) {
-                            // スライダーの値を更新
+                            // UI更新
                             localNationalSlider.value = preset.localNationalRate;
                             localNationalValue.textContent = preset.localNationalRate;
                             nationalGlobalSlider.value = preset.nationalGlobalRate;
@@ -1029,55 +1113,57 @@
                             nationalStrengthSlider.value = preset.nationalForce;
                             nationalStrengthValue.textContent = preset.nationalForce;
 
-                            // アクティブ状態の切り替え
+                            // アクティブクラス更新
                             document.querySelectorAll('.mode-btn').forEach(btn => {
                                 btn.classList.remove('active');
                             });
                             button.classList.add('active');
+
+                            // 解説を更新
+                            this.updateExplanation(modeKey);
                         }
                     });
                 });
 
+                // 各種スライダーイベント（カスタムモードになったら解説をどうするか？
+                // 現状はそのまま残すか、あるいは「カスタム」と表示するか。
+                // 複雑さを避けるため、解説はそのまま残します）
+                
+                const handleCustomInput = () => {
+                     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                };
+
                 localNationalSlider.addEventListener('input', (e) => {
-                    const value = parseInt(e.target.value);
-                    localNationalValue.textContent = value;
+                    localNationalValue.textContent = e.target.value;
                     const nationalGlobalRate = parseInt(nationalGlobalSlider.value) / 100;
-                    this.controller.setCustomRates(value / 100, nationalGlobalRate);
-                    // カスタム設定の場合、アクティブ状態を解除
-                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                    this.controller.setCustomRates(e.target.value / 100, nationalGlobalRate);
+                    handleCustomInput();
                 });
 
                 nationalGlobalSlider.addEventListener('input', (e) => {
-                    const value = parseInt(e.target.value);
-                    nationalGlobalValue.textContent = value;
+                    nationalGlobalValue.textContent = e.target.value;
                     const localNationalRate = parseInt(localNationalSlider.value) / 100;
-                    this.controller.setCustomRates(localNationalRate, value / 100);
-                    // カスタム設定の場合、アクティブ状態を解除
-                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                    this.controller.setCustomRates(localNationalRate, e.target.value / 100);
+                    handleCustomInput();
                 });
 
                 localStrengthSlider.addEventListener('input', (e) => {
-                    const value = parseInt(e.target.value);
-                    localStrengthValue.textContent = value;
+                    localStrengthValue.textContent = e.target.value;
                     const nationalStrength = parseInt(nationalStrengthSlider.value);
-                    this.controller.setAttractionForces(value, nationalStrength);
-                    // カスタム設定の場合、アクティブ状態を解除
-                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                    this.controller.setAttractionForces(e.target.value, nationalStrength);
+                    handleCustomInput();
                 });
 
                 nationalStrengthSlider.addEventListener('input', (e) => {
-                    const value = parseInt(e.target.value);
-                    nationalStrengthValue.textContent = value;
+                    nationalStrengthValue.textContent = e.target.value;
                     const localStrength = parseInt(localStrengthSlider.value);
-                    this.controller.setAttractionForces(localStrength, value);
-                    // カスタム設定の場合、アクティブ状態を解除
-                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                    this.controller.setAttractionForces(localStrength, e.target.value);
+                    handleCustomInput();
                 });
             }
             
             update() {
                 if (this.isPaused) return;
-                
                 this.particles.forEach(particle => particle.update());
             }
             
@@ -1085,7 +1171,6 @@
                 this.ctx.fillStyle = '#1a1a2e';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-                // 渦を大きい順に描画（グローバル→ナショナル）
                 const globalVortexes = this.vortexes.filter(v => v.type === 'global');
                 const nationalVortexes = this.vortexes.filter(v => v.type === 'national');
 
@@ -1097,39 +1182,9 @@
                     vortex.draw(this.ctx, this.showConnections);
                 });
 
-                // パーティクルを描画
                 this.particles.forEach(particle => {
                     particle.draw(this.ctx);
                 });
-            }
-            
-            updateStats() {
-                const stats = this.controller.getStats();
-                const efficiency = this.controller.calculateCirculationEfficiency();
-                const activity = this.controller.calculateExchangeActivity();
-                
-                const statsHTML = `
-                    <h4>統計情報</h4>
-                    <div><strong>総パーティクル数:</strong> ${stats.totalParticles}</div>
-                    <div style="margin-top: 10px;"><strong>分布:</strong></div>
-                    <div>・ローカル: ${stats.distribution.local}</div>
-                    <div>・ナショナル: ${stats.distribution.national}</div>
-                    <div>・グローバル: ${stats.distribution.global}</div>
-                    <div style="margin-top: 10px;"><strong>循環効率:</strong> ${efficiency.toFixed(1)}%</div>
-                    <div><strong>交換活動度:</strong> ${activity.toFixed(1)}%</div>
-                `;
-                
-                document.getElementById('stats').innerHTML = statsHTML;
-            }
-            
-            getModeLabel(mode) {
-                const labels = {
-                    'extreme-globalism': '極端なグローバリズム',
-                    'balanced': 'バランス型',
-                    'extreme-localism': '極端なローカリズム',
-                    'custom': 'カスタム'
-                };
-                return labels[mode] || mode;
             }
             
             animate() {
@@ -1139,19 +1194,16 @@
             }
         }
 
-        // アプリケーション起動
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOMContentLoaded イベント発火');
             try {
                 const app = new EconomyVisualization();
                 window.economyApp = app;
-                console.log('アプリケーション起動成功');
+                // 初期表示としてFeudalボタンを擬似クリックして解説を表示
+                document.getElementById('feudal-btn').click();
             } catch(error) {
                 console.error('アプリケーション起動エラー:', error);
             }
         });
-
-        console.log('スクリプト読み込み完了');
     </script>
 </body>
 </html>
